@@ -1,12 +1,13 @@
 package main
 
 import (
+	"fmt"
+	"io"
+	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
-    "fmt"
-    "os/exec"
-    "sync"
-    "io"
+	"sync"
 )
 
 // GetRepos returns a list of absolute paths to subfolders in the given path
@@ -39,13 +40,12 @@ func executeGitPull(repo string) error {
 		return fmt.Errorf("failed to change directory to %s: %w", repo, err)
 	}
 
-	// Execute `git pull`
-	cmd := exec.Command("git", "pull")
+	cmd := exec.Command("git", "fetch", "origin", "master")
 	cmd.Stdout = io.Discard
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("git pull command failed: %w", err)
+		return fmt.Errorf("command failed: %w", err)
 	} else {
         fmt.Printf("Synced %s\n", repo)
     }
@@ -82,6 +82,9 @@ func SyncRepos(repos []string) {
 
 func main() {
     path := os.Getenv("REPOS_PATH")
+	if path == "" {
+		log.Fatal("REPOS_PATH is empty")
+	}
     repos := GetRepos(path)
     SyncRepos(repos)
 }
