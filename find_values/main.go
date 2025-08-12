@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -34,9 +35,18 @@ func FindFile(rootFolder, inputFileName string) (string, error) {
 	return foundPath, nil
 }
 
+func printFileToStdout(filePath string) {
+	file, _ := os.Open(filePath)
+	defer file.Close()
+	_, _ = io.Copy(os.Stdout, file)
+}
+
 func main() {
-	Folder := os.Getenv("REPOS_PATH")
-	Needle := os.Args[1]
-	Path, _ :=  FindFile(Folder, Needle)
-	fmt.Println(Path)
+	folder := os.Getenv("REPOS_PATH")
+	needle := os.Args[1]
+	fileName := fmt.Sprintf("values.%s.yaml", needle)
+	filePath, err := FindFile(folder, fileName)
+	if err == nil && filePath != "" {
+		printFileToStdout(filePath)
+	}
 }
