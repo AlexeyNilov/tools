@@ -81,7 +81,7 @@ func SyncRepos(repos []string) {
 }
 
 func main() {
-    path := os.Args[1]
+    path := os.Getenv("REPOS_PATH")
     repos := GetRepos(path)
     SyncRepos(repos)
 }
